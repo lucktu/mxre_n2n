@@ -9,7 +9,7 @@ add_definitions(-DN2N_VERSION=\"${N2N_VERSION}\" -DN2N_OSNAME=\"${N2N_OSNAME}\")
 
 # N2n specific params
 if(NOT DEFINED N2N_OPTION_AES)
-set(N2N_OPTION_AES ON)
+set(N2N_OPTION_AES OFF)
 endif(NOT DEFINED N2N_OPTION_AES)
 
 if(N2N_OPTION_AES)
@@ -28,7 +28,14 @@ elseif(USE_MBEDTLS)
         set(CRYPTO_LIB mbedcrypto)
 elseif(USE_OPENSSL)
         add_definitions(-DUSE_OPENSSL=1)
-        set(CRYPTO_LIB crypto)
+        if(OPENSSL_INCLUDE_DIR)  
+            include_directories(${OPENSSL_INCLUDE_DIR})  
+        endif()  
+        if(OPENSSL_CRYPTO_LIBRARY)  
+            set(CRYPTO_LIB ${OPENSSL_CRYPTO_LIBRARY})  
+        else()  
+            set(CRYPTO_LIB crypto)  
+        endif()
 elseif(USE_ELL)
         add_definitions(-DUSE_ELL=1)
         set(CRYPTO_LIB dl ell)
@@ -45,6 +52,19 @@ endif(NOT DEFINED BUILD_SHARED_LIBS)
 if(NOT DEFINED CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE None)
 endif(NOT DEFINED CMAKE_BUILD_TYPE)
+#set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Release)
+
+#Ultrasparc64 users experiencing SIGBUS should try the following gcc options
+#(thanks to Robert Gibbon) 
+#PLATOPTS_SPARC64=-mcpu=ultrasparc -pipe -fomit-frame-pointer -ffast-math -finline-functions -fweb -frename-registers -mapp-regs
+
+## DEBUG FOR CMAKE
+#message(${N2N_VERSION}) 
+#message(${N2N_OSNAME})
+##message(${CMAKE_BUILD_TYPE})
+#message(${N2N_OPTION_AES})
+## DEBUG FOR CMAKE
 
 add_library(n2n OBJECT
         n2n.c
@@ -92,19 +112,9 @@ add_executable(edge
         tuntap_osx.c
         ${OBJECTS} ${EDGE_RESOURCE}
 )
-
-# Linux Capabilities - dynamic detection
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    find_library(CAP_LIB cap)
-    if(CAP_LIB)
-        target_link_libraries(edge ${CAP_LIB})
-        add_definitions(-DHAVE_LIBCAP)
-        message(STATUS "Found libcap: ${CAP_LIB}")
-    else()
-        message(STATUS "libcap not found, capabilities disabled")
-    endif()
-endif()
-
+##if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+##        target_link_libraries(edge cap)
+##endif()
 set_property(TARGET edge PROPERTY C_STANDARD 99)
 
 # Build supernode executable
@@ -125,10 +135,21 @@ add_custom_command(
 )
 endif(DEFINED WIN32)
 
-# Link crypto library if AES is enabled
+# For Solaris (or OpenSolaris?)
+#target_link_libraries(edge socket nsl)
+#target_link_libraries(supernode socket nsl)
+
 if(N2N_OPTION_AES)
 target_link_libraries(edge ${CRYPTO_LIB})
 endif(N2N_OPTION_AES)
+
+if(NOT DEFINED WIN32)
+#add_executable(test test.c)
+#target_link_libraries(test n2n)
+
+#add_executable(benchmark benchmark.c)
+#target_link_libraries(benchmark n2n)
+endif(NOT DEFINED WIN32)
 
 # Installation
 install(TARGETS edge supernode
