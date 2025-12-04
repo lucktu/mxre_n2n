@@ -93,7 +93,7 @@ add_executable(edge
         ${OBJECTS} ${EDGE_RESOURCE}
 )
 
-# Linux Capabilities - ¶¯Ì¬¼ì²â
+# Linux Capabilities - dynamic detection
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     find_library(CAP_LIB cap)
     if(CAP_LIB)

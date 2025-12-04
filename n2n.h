@@ -42,7 +42,7 @@
 #define N2N_HAVE_SETUID 1
 #ifdef __linux__
 #define N2N_CAN_NAME_IFACE 1
-/* 不再硬编码定义 N2N_HAS_CAPABILITIES，改为使用 HAVE_LIBCAP */
+/* Instead of hardcoding N2N_HAS_CAPABILITIES, use HAVE_LIBCAP */
 #endif
 #endif
 
@@ -76,7 +76,7 @@
 #include <sys/prctl.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
-/* 只有在 HAVE_LIBCAP 定义时才包含 capability.h */
+/* capability.h is only included when HAVE_LIBCAP is defined */
 #ifdef HAVE_LIBCAP
 #include <sys/capability.h>
 #endif /* HAVE_LIBCAP */
