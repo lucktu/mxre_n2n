@@ -124,7 +124,9 @@ ssize_t transop_decode_speck(n2n_trans_op_t *arg,
 
     /* Check version */
     if (inbuf[idx++] != N2N_SPECK_TRANSFORM_VERSION) {
-        traceEvent(TRACE_ERROR, "decode_speck unsupported Speck version %u.", inbuf[idx-1]);
+        if (traceLevel >= TRACE_INFO) {
+            traceEvent(TRACE_INFO, "decode_speck unsupported Speck version %u.", inbuf[idx-1]);
+        }
         return -1;
     }
 

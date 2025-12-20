@@ -247,7 +247,9 @@ static ssize_t transop_decode_twofish( n2n_trans_op_t * arg,
             else
             {
                 /* Wrong security association; drop the packet as it is undecodable. */
-                traceEvent( TRACE_ERROR, "decode_twofish SA number %lu not found.", sa_rx );
+                if (traceLevel >= TRACE_INFO) {
+                    traceEvent( TRACE_INFO, "decode_twofish SA number %lu not found.", sa_rx );
+                }
 
                 /* REVISIT: should be able to load a new SA at this point to complete the decoding. */
             }
@@ -255,7 +257,9 @@ static ssize_t transop_decode_twofish( n2n_trans_op_t * arg,
         else
         {
             /* Wrong security association; drop the packet as it is undecodable. */
-            traceEvent( TRACE_ERROR, "decode_twofish unsupported twofish version %u.", tf_enc_ver );
+            if (traceLevel >= TRACE_DEBUG) {
+                traceEvent( TRACE_DEBUG, "decode_twofish unsupported twofish version %u.", tf_enc_ver );
+            }
 
             /* REVISIT: should be able to load a new SA at this point to complete the decoding. */
         }
